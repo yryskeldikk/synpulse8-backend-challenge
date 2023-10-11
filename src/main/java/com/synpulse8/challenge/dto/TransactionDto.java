@@ -16,6 +16,8 @@ public class TransactionDto {
     private long totalElements;
     private int totalPages;
 
+    public TransactionDto() {}
+
     public TransactionDto(List<Transaction> transactionList,
             BigDecimal totalCreditInHKD,
             BigDecimal totalDebitInHKD,
