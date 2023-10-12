@@ -67,7 +67,7 @@ public class TransactionService {
         BigDecimal totalCreditInHKD = BigDecimal.ZERO;
         BigDecimal totalDebitInHKD = BigDecimal.ZERO;
 
-        for (Transaction transaction: transactionDto.getTransactionList()){
+        for (Transaction transaction : transactionDto.getTransactionList()) {
             BigDecimal currentExchageRateHKD = getCurrentExchangeRateInHKD(transaction.getCurrency());
             BigDecimal convertedValue = transaction.getValue().multiply(currentExchageRateHKD);
 
@@ -84,17 +84,14 @@ public class TransactionService {
     }
 
     private BigDecimal getCurrentExchangeRateInHKD(String currency) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(exchangeRateUrl)
-                .queryParam("access_key", apiKey)
-                .queryParam("base", currency)
-                .queryParam("symbols", "HKD");
+        String url = exchangeRateUrl + "/" + apiKey + "/latest/" + currency;
 
         BigDecimal currentExchangeRate = null;
 
-        ResponseEntity<Map> response = restTemplate.getForEntity(builder.toUriString(), Map.class);
+        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
         if (response.getStatusCode().value() == 200) {
-            Map rates = (Map) response.getBody().get("rates");
-            currentExchangeRate = BigDecimal.valueOf((Double)rates.get("HKD"));
+            Map rates = (Map) response.getBody().get("conversion_rates");
+            currentExchangeRate = BigDecimal.valueOf((Double) rates.get("HKD"));
         }
         return currentExchangeRate;
     }
