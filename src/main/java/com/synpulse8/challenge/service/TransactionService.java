@@ -10,9 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -68,7 +69,7 @@ public class TransactionService {
         BigDecimal totalDebitInHKD = BigDecimal.ZERO;
 
         for (Transaction transaction : transactionDto.getTransactionList()) {
-            BigDecimal currentExchageRateHKD = getCurrentExchangeRateInHKD(transaction.getCurrency());
+            BigDecimal currentExchageRateHKD = getCurrentExchangeRateInHKDFromAPI(transaction.getCurrency());
             BigDecimal convertedValue = transaction.getValue().multiply(currentExchageRateHKD);
 
             if (transaction.getValue().compareTo(BigDecimal.ZERO) < 0) {
@@ -83,7 +84,9 @@ public class TransactionService {
         return transactionDto;
     }
 
-    private BigDecimal getCurrentExchangeRateInHKD(String currency) {
+
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    public BigDecimal getCurrentExchangeRateInHKDFromAPI(String currency) {
         String url = exchangeRateUrl + "/" + apiKey + "/latest/" + currency;
 
         BigDecimal currentExchangeRate = null;
