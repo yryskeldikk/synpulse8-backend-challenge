@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.retry.annotation.EnableRetry;
 
 import com.synpulse8.challenge.domain.BankAccount;
 import com.synpulse8.challenge.domain.Transaction;
@@ -31,6 +32,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRetry
 @ExtendWith(MockitoExtension.class)
 public class TestTransactionService {
     @Spy
@@ -140,29 +142,5 @@ public class TestTransactionService {
 
         assertThat(ibanListCaptor.getValue(), contains("IBAN1", "IBAN2"));
     }
-
-    // @Test
-    // public void testExternalAPI() {
-    // String currency = "EUR";
-    // Map<String, Double> rates = new HashMap<>();
-    // rates.put("HKD", 8.2982);
-    // Map<String, Map<String, Double>> sampleBody = new HashMap<>();
-    // sampleBody.put("conversion_rates", rates);
-
-    // String url =
-    // "https://v6.exchangerate-api.com/v6/4ee14eb4c1177b891106be9f/latest/EUR";
-
-    // // TransactionService transactionService = mock(TransactionService.class);
-
-    // when(restTemplate.getForEntity(url, Map.class))
-    // .thenThrow(new RuntimeException("Remote Exception 1"))
-    // .thenThrow(new RuntimeException("Remote Exception 2"))
-    // .thenReturn(ResponseEntity.status(HttpStatus.OK).body(sampleBody));
-
-    // BigDecimal currentRate =
-    // transactionService.getCurrentExchangeRateInHKDFromAPI(currency);
-    // verify(restTemplate, times(3)).getForEntity(url, Map.class);
-    // // assertThat(currentRate, BigDecimal.valueOf(8.2982));
-    // }
 
 }
