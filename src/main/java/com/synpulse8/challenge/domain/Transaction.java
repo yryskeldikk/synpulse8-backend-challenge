@@ -30,6 +30,9 @@ public class Transaction {
     @Column(name = "transaction_date")
     private Date transactionDate;
 
+    public Transaction() {
+    }
+
     public Transaction(String uid, BigDecimal value, String currency, String iban, String description,
             Date transactionDate) {
         this.uid = uid;
@@ -38,5 +41,11 @@ public class Transaction {
         this.iban = iban;
         this.description = description;
         this.transactionDate = transactionDate;
+    }
+
+    public Transaction(String uid, BigDecimal value, String currency) {
+        this.uid = uid;
+        this.value = value;
+        this.currency = currency;
     }
 }

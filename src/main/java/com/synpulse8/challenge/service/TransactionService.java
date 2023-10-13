@@ -5,29 +5,23 @@ import com.synpulse8.challenge.domain.Transaction;
 import com.synpulse8.challenge.dto.TransactionDto;
 import com.synpulse8.challenge.repository.BankAccountRepository;
 import com.synpulse8.challenge.repository.TransactionRepository;
+import com.synpulse8.challenge.utils.DateUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TransactionService {
-
-    @Value("${app.api.exchangerate.url}")
-    private String exchangeRateUrl;
-
-    @Value("${app.api.exchangerate.apikey}")
-    private String apiKey;
-
     @Autowired
     TransactionRepository transactionRepository;
 
@@ -35,7 +29,7 @@ public class TransactionService {
     BankAccountRepository bankAccountRepository;
 
     @Autowired
-    RestTemplate restTemplate;
+    ExternalApiService externalApiServer;
 
     public Page<Transaction> getTransactionsForUserInMonth(String userId, int year, int month, Pageable pageable) {
         // Retrieve all bank accounts for the user
@@ -47,11 +41,8 @@ public class TransactionService {
                 .collect(Collectors.toList());
 
         // Calculate the start and end dates for the desired month
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, 1, 0, 0, 0);
-        Date startDate = calendar.getTime();
-        calendar.add(Calendar.MONTH, 1);
-        Date endDate = calendar.getTime();
+        Date startDate = DateUtils.getStartDate(year, month);
+        Date endDate = DateUtils.getEndDate(year, month);
 
         // Retrieve transactions for the user and month with pagination
         return transactionRepository.findByIbanInAndTransactionDateBetween(userIbans, startDate, endDate, pageable);
@@ -59,7 +50,7 @@ public class TransactionService {
 
     public TransactionDto getTransactionDtoForUserInMonth(String userId, int year, int month, Pageable pageable) {
         TransactionDto transactionDto = new TransactionDto();
-        Page<Transaction> transactionPage = getTransactionsForUserInMonth(userId, year, month, pageable);
+        Page<Transaction> transactionPage = this.getTransactionsForUserInMonth(userId, year, month, pageable);
         transactionDto.setTransactionList(transactionPage.getContent());
         transactionDto.setPageable(transactionPage.getPageable());
         transactionDto.setTotalElements(transactionPage.getTotalElements());
@@ -69,7 +60,8 @@ public class TransactionService {
         BigDecimal totalDebitInHKD = BigDecimal.ZERO;
 
         for (Transaction transaction : transactionDto.getTransactionList()) {
-            BigDecimal currentExchageRateHKD = getCurrentExchangeRateInHKDFromAPI(transaction.getCurrency());
+            BigDecimal currentExchageRateHKD = externalApiServer
+                    .getCurrentExchangeRateInHKDFromAPI(transaction.getCurrency());
             BigDecimal convertedValue = transaction.getValue().multiply(currentExchageRateHKD);
 
             if (transaction.getValue().compareTo(BigDecimal.ZERO) < 0) {
@@ -84,18 +76,4 @@ public class TransactionService {
         return transactionDto;
     }
 
-
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    public BigDecimal getCurrentExchangeRateInHKDFromAPI(String currency) {
-        String url = exchangeRateUrl + "/" + apiKey + "/latest/" + currency;
-
-        BigDecimal currentExchangeRate = null;
-
-        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-        if (response.getStatusCode().value() == 200) {
-            Map rates = (Map) response.getBody().get("conversion_rates");
-            currentExchangeRate = BigDecimal.valueOf((Double) rates.get("HKD"));
-        }
-        return currentExchangeRate;
-    }
 }

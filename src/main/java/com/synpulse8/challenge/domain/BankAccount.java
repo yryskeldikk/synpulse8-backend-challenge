@@ -17,4 +17,12 @@ public class BankAccount {
 
     @Column(name = "user_id")
     private String userId;
+
+    public BankAccount(String iban, String userId) {
+        this.iban = iban;
+        this.userId = userId;
+    }
+
+    public BankAccount() {
+    }
 }

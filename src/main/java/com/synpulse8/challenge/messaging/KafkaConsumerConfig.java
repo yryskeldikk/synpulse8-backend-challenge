@@ -21,7 +21,6 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.server}")
     private String kafkaServer;
 
-
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
@@ -34,14 +33,12 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
-
 
     @Bean
     public ConsumerFactory<String, Transaction> transactionConsumerFactory() {

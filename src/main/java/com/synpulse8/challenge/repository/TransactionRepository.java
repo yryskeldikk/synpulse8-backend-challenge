@@ -11,5 +11,6 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, String> {
-    Page<Transaction> findByIbanInAndTransactionDateBetween(List<String> userIbans, Date startDate, Date endDate, Pageable pageable);
+    Page<Transaction> findByIbanInAndTransactionDateBetween(List<String> userIbans, Date startDate, Date endDate,
+            Pageable pageable);
 }
