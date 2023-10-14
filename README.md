@@ -284,7 +284,19 @@ We activate these profiles using the `spring.profiles.active` property in the `a
 spring.profiles.active=development
 ```
 
-# 10. Deployment
+# 10. Exception Handling
+
+The application uses exception handling to ensure robust error management. I employ Spring's `@ControllerAdvice` to handle exceptions globally, ensuring clear and meaningful responses to clients. All the exceptions are also tested to ensure dependable error handling.
+
+### Invalid Date Input Exception
+
+When invalid date inputs are encountered, the `InvalidDateInputException` is thrown. The `RestResponseEntityExceptionHandler` responds with a user-friendly 400 Bad Request error message.
+
+## Generic Exceptions
+
+In the case of generic exceptions, our global exception handler handles unexpected errors, returning a 500 Internal Server Error message.
+
+# 11. Deployment
 
 ### Dockerfile
 
