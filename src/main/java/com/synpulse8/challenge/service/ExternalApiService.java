@@ -32,7 +32,7 @@ public class ExternalApiService {
         BigDecimal currentExchangeRate = null;
 
         ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-        if (response != null & response.getStatusCode().value() == 200) {
+        if (response.getStatusCode().value() == 200) {
             Map rates = (Map) response.getBody().get("conversion_rates");
             currentExchangeRate = BigDecimal.valueOf((Double) rates.get("HKD"));
         }
