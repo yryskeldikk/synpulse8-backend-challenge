@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.meta.service: synpulse-challenge-backend
+    name: synpulse-challenge-backend
+    service: backend
+    tier: "backend"
+    eck-log: "yes"
+  name: synpulse-challenge-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.meta.service: synpulse-challenge-backend
+      name: synpulse-challenge-backend
+      service: backend
+      tier: "backend"
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.meta.service: synpulse-challenge-backend
+        name: synpulse-challenge-backend
+        service: backend
+        tier: "backend"
+        eck-log: "yes"
+    spec:
+      containers:
+        - name: synpulse-challenge
+          image: $DOCKER_REPO/synpulse-challenge:$VERSION
+          imagePullPolicy: "Always"
+          env:
+            - name: JAVA_OPTIONS
+              value: "-Xmx840m -Xms640m"
+            - name: SPRING_PROFILES_ACTIVE
+              value: $ENV
+            - name: SERVER_PORT
+              value: "8080"
+          resources:
+            limits:
+              cpu: "750m"
+              memory: "1680Mi"
+            requests:
+              cpu: "750m"
+              memory: "640Mi"
+          ports:
+            - containerPort: 8080
