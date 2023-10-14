@@ -321,7 +321,7 @@ docker build -t $DOCKER_REPO/synulse-challenge:$VERSION
 docker push $DOCKER_REPO/synulse-challenge:$VERSION
 ```
 
-### 3. Deploy to Kubernetes
+### 2. Deploy to Kubernetes
 
 #### Generate Kubernetes Deployment YAML
 
