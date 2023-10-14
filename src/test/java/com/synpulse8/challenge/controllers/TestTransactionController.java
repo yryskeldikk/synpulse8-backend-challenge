@@ -1,5 +1,6 @@
 package com.synpulse8.challenge.controllers;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -11,10 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.synpulse8.challenge.domain.Transaction;
 import com.synpulse8.challenge.dto.TransactionDto;
+import com.synpulse8.challenge.exception.InvalidDateInputException;
 import com.synpulse8.challenge.service.TransactionService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -45,7 +51,7 @@ public class TestTransactionController {
                                 "Online Payment", new Date());
 
                 TransactionDto transactionDto = new TransactionDto(List.of(t1, t2), BigDecimal.valueOf(2700),
-                                BigDecimal.valueOf(1200), PageRequest.of(2, 1), 1000, 500);
+                                BigDecimal.valueOf(1200), PageRequest.of(page, size), 1000, 500);
 
                 when(transactionService.getTransactionDtoForUserInMonth(userId, year, month,
                                 PageRequest.of(page, size)))
@@ -65,5 +71,27 @@ public class TestTransactionController {
                                 .andExpect(jsonPath("$.totalDebitInHKD", is(1200)))
                                 .andExpect(jsonPath("$.totalElements", is(1000)))
                                 .andExpect(jsonPath("$.totalPages", is(500)));
+        }
+
+        @Test
+        public void testInvalidDateInputException() throws Exception {
+                String userId = "12345";
+                int invalidYear = 2200;
+                int month = 13;
+                Pageable pageable = PageRequest.of(1, 2);
+
+                // Mock the service to throw InvalidDateInputException
+                doThrow(new InvalidDateInputException("Invalid year input. Year must be within a reasonable range."))
+                                .when(transactionService)
+                                .getTransactionDtoForUserInMonth(userId, invalidYear, month, pageable);
+
+                mvc.perform(get("/transactions/{userId}", userId)
+                                .param("year", String.valueOf(invalidYear))
+                                .param("month", String.valueOf(month))
+                                .param("page", "1")
+                                .param("size", "2"))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(content()
+                                                .string("Invalid year input. Year must be within a reasonable range."));
         }
 }

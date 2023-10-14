@@ -1,6 +1,7 @@
 package com.synpulse8.challenge.controllers;
 
 import com.synpulse8.challenge.dto.TransactionDto;
+import com.synpulse8.challenge.exception.InvalidDateInputException;
 import com.synpulse8.challenge.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ public class TransactionController {
             @PathVariable String userId,
             @RequestParam int year,
             @RequestParam int month,
-            Pageable pageable) {
+            Pageable pageable) throws InvalidDateInputException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.getTransactionDtoForUserInMonth(userId, year, month, pageable));
     }

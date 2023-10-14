@@ -3,6 +3,7 @@ package com.synpulse8.challenge.service;
 import com.synpulse8.challenge.domain.BankAccount;
 import com.synpulse8.challenge.domain.Transaction;
 import com.synpulse8.challenge.dto.TransactionDto;
+import com.synpulse8.challenge.exception.InvalidDateInputException;
 import com.synpulse8.challenge.repository.BankAccountRepository;
 import com.synpulse8.challenge.repository.TransactionRepository;
 import com.synpulse8.challenge.utils.DateUtils;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Year;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +50,15 @@ public class TransactionService {
         return transactionRepository.findByIbanInAndTransactionDateBetween(userIbans, startDate, endDate, pageable);
     }
 
-    public TransactionDto getTransactionDtoForUserInMonth(String userId, int year, int month, Pageable pageable) {
+    public TransactionDto getTransactionDtoForUserInMonth(String userId, int year, int month, Pageable pageable)
+            throws InvalidDateInputException {
+        if (isBadMonthInput(month)) {
+            throw new InvalidDateInputException("Invalid month input. Month must be between 1 and 12.");
+        }
+        if (isBadYearInput(year)) {
+            throw new InvalidDateInputException("Invalid year input. Year must be within a reasonable range.");
+        }
+
         TransactionDto transactionDto = new TransactionDto();
         Page<Transaction> transactionPage = this.getTransactionsForUserInMonth(userId, year, month, pageable);
         transactionDto.setTransactionList(transactionPage.getContent());
@@ -74,6 +84,21 @@ public class TransactionService {
         transactionDto.setTotalCreditInHKD(totalCreditInHKD);
         transactionDto.setTotalDebitInHKD(totalDebitInHKD);
         return transactionDto;
+    }
+
+    public boolean isBadMonthInput(int month) {
+        if (month < 1 || month > 12) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isBadYearInput(int year) {
+        int currentYear = Year.now().getValue();
+        if (year < currentYear - 100 || year > currentYear) {
+            return true;
+        }
+        return false;
     }
 
 }
