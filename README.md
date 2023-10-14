@@ -146,11 +146,11 @@ The `KafkaConsumerService` class contains methods annotated with `@KafkaListener
 
 # 7. Services
 
-## 7.1 Transaction Service
+### 7.1 Transaction Service
 
 The `TransactionService` is a key component of the application responsible for managing and processing transaction data. This service interacts with repositories to retrieve data, performs calculations, and communicates with an external API server to convert currency values. Below are the key aspects of the `TransactionService`.
 
-### Retrieving Transactions for a User in a Specific Month
+#### Retrieving Transactions for a User in a Specific Month
 
 The method `getTransactionsForUserInMonth` retrieves transactions for a user within a specified month. It involves the following steps:
 
@@ -162,7 +162,7 @@ The method `getTransactionsForUserInMonth` retrieves transactions for a user wit
 
 4. **Retrieve Transactions**: Transactions are retrieved using the `transactionRepository.findByIbanInAndTransactionDateBetween` method. This method queries the database for transactions matching the user's IBANs and transaction date range.
 
-### Calculating Total Credit and Debit in HKD (Hong Kong Dollars)
+#### Calculating Total Credit and Debit in HKD (Hong Kong Dollars)
 
 The method `getTransactionDtoForUserInMonth` extends the `getTransactionsForUserInMonth` operation to provide additional information. It calculates the total credit and debit amounts in Hong Kong Dollars (HKD) for the retrieved transactions. The following steps summarize the process:
 
@@ -176,7 +176,7 @@ The method `getTransactionDtoForUserInMonth` extends the `getTransactionsForUser
 
 5. **Set Total Amounts**: The total credit and debit values in HKD are set in the `TransactionDto`.
 
-### Dependencies
+#### Dependencies
 
 The `TransactionService` relies on the following dependencies:
 
@@ -186,13 +186,13 @@ The `TransactionService` relies on the following dependencies:
 
 This service plays a crucial role in aggregating transaction data and performing currency conversions, enabling users to view their financial data with amounts in HKD.
 
-## 7.2 External API Integration
+### 7.2 External API Integration
 
 The `ExternalApiService` is responsible for making external API requests to retrieve exchange rates. It is a key component of the application's functionality. The service is configured to interact with an external API that provides exchange rate data based on a given currency.
 
 - **`getCurrentExchangeRateInHKDFromAPI`**: This method retrieves the current exchange rate for Hong Kong Dollars (HKD) from the external API. It takes a `currency` parameter and returns the exchange rate as a `BigDecimal`. The method makes an HTTP GET request to the API using the `RestTemplate` and processes the response to extract the exchange rate information.
 
-### Configuration - `AppConfig`
+#### Configuration - `AppConfig`
 
 The `AppConfig` class serves as the application's configuration file and includes configuration related to the `RestTemplate`.
 
@@ -212,47 +212,47 @@ The `ExternalApiService` and `AppConfig` work together to fetch and process exte
 
 # 8. Testing
 
-## Controller Testing
+### Controller Testing
 
 In my testing approach for the `TransactionController`, I incorporated the following practices:
 
-### 1. **Focused Testing with `@WebMvcTest`**
+#### 1. **Focused Testing with `@WebMvcTest`**
 
 I applied the `@WebMvcTest` annotation, which limited the scope of the test to the controller layer and its associated components. This approach provided focused testing for the controller, resulting in improved test performance and more efficient isolation of the testing target.
 
-### 2. **Isolating Dependencies with `@MockBean`**
+#### 2. **Isolating Dependencies with `@MockBean`**
 
 In this test, I isolated the `TransactionService` by using the `@MockBean` annotation to create a mock instance of the service. This practice adheres to the principle of unit testing, which encourages isolating the component under test and providing controlled responses to method calls.
 
-### 3. **Behavior Definition with `Mockito`**
+#### 3. **Behavior Definition with `Mockito`**
 
 I employed the `Mockito` framework to define the behavior of the `TransactionService` when it's called with specific parameters. This practice enabled me to simulate different scenarios and ensure that the controller responded correctly to various service responses.
 
-### 4. **Clear Assertions**
+#### 4. **Clear Assertions**
 
 In my test case, I used clear and structured assertions to verify the HTTP request and response. The `perform` method initiated the request, and the `andExpect` method was used to assert the response's status, headers, and content. This approach ensured that the expectations were explicitly documented and validated.
 
-## Service Layer Testing
+### Service Layer Testing
 
 In the testing of the `TransactionService` class, I followed best practices to ensure the reliability and comprehensiveness of the test suite. These practices encompass unit and integration testing, error cases, and mocking, among others:
 
-### 1. **Test TransactionDto Calculation**
+#### 1. **Test TransactionDto Calculation**
 
 In the `testTransactionDto` method, I implemented a comprehensive test scenario where I simulated transactions, external API responses, and user data. The test verified the correct calculation of `TransactionDto` attributes such as `totalCreditInHKD`, `totalDebitInHKD`, `totalElements`, and `totalPages`. By providing explicit expectations and using the `comparesEqualTo` method, I ensured precise testing outcomes.
 
-### 2. **Handling No Transactions**
+#### 2. **Handling No Transactions**
 
 I included a test method named `testNoTransactions` that focuses on the case when there are no transactions for the user. This test verifies that the service correctly handles this situation by asserting that `TransactionDto` attributes, such as `totalElements`, `totalPages`, and lists, are set to their default values.
 
-### 3. **Test Method Isolation with `@Spy` and `@Mock`**
+#### 3. **Test Method Isolation with `@Spy` and `@Mock`**
 
 I employed `@Spy` and `@Mock` annotations to isolate dependencies and methods in the test cases. This practice enhances the reliability of each test and ensures that method calls are controlled and predictable.
 
-### 4. **Clear Assertions**
+#### 4. **Clear Assertions**
 
 Each test method is structured with clear and concise assertions to verify expected outcomes. This approach enhances test readability and ensures that the tests explicitly document the expected behavior of the service methods.
 
-### 5. **Use of `ArgumentCaptor` and Mockito's Verification**
+#### 5. **Use of `ArgumentCaptor` and Mockito's Verification**
 
 In the `testGetTransactionsForUserInMonth` method, I demonstrated the use of `ArgumentCaptor` and Mockito's verification methods. These practices are invaluable for capturing and verifying method arguments and invocations, allowing for fine-grained testing of the service logic.
 
@@ -260,23 +260,23 @@ In the `testGetTransactionsForUserInMonth` method, I demonstrated the use of `Ar
 
 In the application, we utilize Spring Boot's property file system to manage environment-specific configurations. This modular approach allows us to customize the application's behavior for various deployment environments without changing the core application code.
 
-### 1. **`application.properties`**
+#### 1. **`application.properties`**
 
 - The primary configuration file, `application.properties`, contains the default configuration settings for the application. These properties are applicable in all deployment environments, serving as a baseline.
 
-### 2. **`application-localhost.properties`**
+#### 2. **`application-localhost.properties`**
 
 - The `application-localhost.properties` file contains configurations that are specific to a local development environment. Developers use this file during local development to customize settings that are suitable for their development machines.
 
 - This allows for flexibility in configuring, for example, the database connection, enabling debug logging, and setting development-specific properties.
 
-### 3. **`application-docker.properties`**
+#### 3. **`application-docker.properties`**
 
 - The `application-docker.properties` file is tailored for environments where the application is running within a Docker container. It includes configurations that are optimized for containerized deployments.
 
 - These configurations might include the use of container-specific networking settings or environment variables.
 
-## **Profiles Activation**
+### **Profiles Activation**
 
 We activate these profiles using the `spring.profiles.active` property in the `application.properties` file, specifying the relevant profile based on the deployment environment. For instance:
 
@@ -286,17 +286,17 @@ spring.profiles.active=development
 
 # 10. Deployment
 
-## Dockerfile
+### Dockerfile
 
 The Dockerfile is used to build a Docker image for the Spring Boot application.The Kubernetes deployment file defines how the application is deployed within a Kubernetes cluster.
 
-## Build the JAR file
+### Build the JAR file
 
 ```bash
 mvn package
 ```
 
-## 1. Build the Docker Image
+### 1. Build the Docker Image
 
 Before deploying your application, you need to build a Docker image. Make sure you have the following environment variables defined:
 
@@ -304,7 +304,7 @@ Before deploying your application, you need to build a Docker image. Make sure y
 - **VERSION** => assigned with the github tag found for this project
 - **ENV** => available values: localhost, docker. [ must ensure lower case ]
 
-### Set Environment Variables
+#### Set Environment Variables
 
 ```bash
 export DOCKER_REPO=???
@@ -314,16 +314,16 @@ export ENV=???          # [localhost, docker]
 
 Build the docker image and make available for local kubernetes to download
 
-### Build and Push the Docker Image
+#### Build and Push the Docker Image
 
 ```bash
 docker build -t $DOCKER_REPO/synulse-challenge:$VERSION
 docker push $DOCKER_REPO/synulse-challenge:$VERSION
 ```
 
-## 3. Deploy to Kubernetes
+### 3. Deploy to Kubernetes
 
-### Generate Kubernetes Deployment YAML
+#### Generate Kubernetes Deployment YAML
 
 Use the provided template to generate the Kubernetes Deployment YAML file. This will replace the environment variables in the template with your actual values.
 
@@ -331,7 +331,7 @@ Use the provided template to generate the Kubernetes Deployment YAML file. This 
 envsubst < k8s_deploy.template.yaml > k8s_deploy.yaml
 ```
 
-### Deploy to Kubernetes
+#### Deploy to Kubernetes
 
 Create the Kubernetes resources:
 
