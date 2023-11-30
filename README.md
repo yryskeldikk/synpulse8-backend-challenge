@@ -350,3 +350,24 @@ Create the Kubernetes resources:
 ```bash
 kubectl create -f k8s_deploy.yaml
 ```
+
+
+<< KAFKA >>
+
+Run Zookeeper:		.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+
+Run Kafka Server:	.\bin\windows\kafka-server-start.bat .\config\server.properties
+
+Create Kafka topic:	.\bin\windows\kafka-topics.bat --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic topictest
+
+			.\bin\windows\kafka-topics.bat --create --bootstrap-server localhost:9092 --topic topictest
+
+Create Kafka producer:	.\bin\windows\kafka-console-producer.bat --topic synpulse8_transaction --bootstrap-server localhost:9092
+			.\bin\windows\kafka-console-producer.bat --topic synpulse8_string --bootstrap-server localhost:9092
+
+Create Kafka consumer:	.\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic topictest --from-beginning
+
+
+<< SAMPLE TRANSACTION >>
+
+{"uid": "89d3o179-abcd-465b-o9ee-e2d5f6ofEld46", "value": 100.00, "currency": "USD", "iban": "CH93-0000-0000-0000-0000-2", "description": "Online payment", "transactionDate": "2023-10-10"}
